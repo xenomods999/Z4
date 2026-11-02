@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Z4 UI – แต่งรูปออนไลน์</title>
+<style>
+:root{--bg:#f4f3fb;--card:#fff;--ink:#1d1b2e;--mute:#6f6c85;--line:#e4e2f0;--a:#7c5cff;--a2:#ff5c9d;--chk1:#e9e8f2;--chk2:#fff;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#13121c;--card:#1d1b2b;--ink:#f0eefc;--mute:#9a97b3;--line:#2e2b43;--chk1:#2a2840;--chk2:#232136;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#13121c;--card:#1d1b2b;--ink:#f0eefc;--mute:#9a97b3;--line:#2e2b43;--chk1:#2a2840;--chk2:#232136;color-scheme:dark}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 "Noto Sans Thai","Sarabun",system-ui,sans-serif}
+header{display:flex;align-items:center;gap:12px;padding:12px 20px;background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:env(safe-area-inset-top,0px);z-index:5}
+.logo{font-weight:800;font-size:22px;letter-spacing:-1px;background:linear-gradient(135deg,var(--a),var(--a2));color:#fff;padding:2px 12px;border-radius:10px}
+header small{color:var(--mute)}
+.sp{flex:1}
+button,.btn{font:inherit;border:1px solid var(--line);background:var(--card);color:var(--ink);padding:8px 14px;border-radius:10px;cursor:pointer;transition:.15s}
+button:hover{border-color:var(--a);color:var(--a)}
+button:disabled{opacity:.4;pointer-events:none}
+.pri{background:linear-gradient(135deg,var(--a),var(--a2));color:#fff;border:0;font-weight:600}
+.pri:hover{color:#fff;opacity:.9}
+main{display:grid;grid-template-columns:1fr 340px;gap:16px;padding:16px;max-width:1300px;margin:0 auto}
+@media(max-width:860px){main{grid-template-columns:1fr}}
+.stage{background:var(--card);border:1px solid var(--line);border-radius:18px;min-height:420px;display:flex;align-items:center;justify-content:center;padding:16px;position:relative}
+.cv{display:none;max-width:100%;overflow:auto;border-radius:10px;background:repeating-conic-gradient(var(--chk1) 0 25%,var(--chk2) 0 50%) 0 0/20px 20px}
+canvas{display:block;max-width:100%;max-height:70vh;margin:auto}
+canvas.pick{cursor:crosshair}
+.drop{text-align:center;border:2px dashed var(--line);border-radius:16px;padding:48px 24px;width:100%;max-width:520px;cursor:pointer}
+.drop.over{border-color:var(--a);background:rgba(124,92,255,.08)}
+.drop h2{margin:8px 0 4px}.drop p{margin:0;color:var(--mute)}
+.ico{font-size:48px}
+.panel{display:flex;flex-direction:column;gap:12px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px}
+.card h3{margin:0 0 10px;font-size:14px}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.row button{flex:1;min-width:calc(50% - 4px)}
+label.s{display:block;font-size:13px;color:var(--mute);margin-top:8px}
+label.s span{float:right;color:var(--ink)}
+input[type=range]{width:100%;accent-color:var(--a)}
+input[type=color]{width:40px;height:34px;border:1px solid var(--line);border-radius:8px;background:none;padding:2px}
+.on{border-color:var(--a);color:var(--a);background:rgba(124,92,255,.1)}
+.hint{font-size:12px;color:var(--mute);margin:8px 0 0}
+.off{opacity:.45;pointer-events:none}
+button{display:inline-flex;align-items:center;justify-content:center;gap:6px}
+.i{width:18px;height:18px;flex:none;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.card h3{display:flex;align-items:center;gap:8px}.card h3 .i{color:var(--a)}
+.ico .i{width:56px;height:56px;color:var(--a);stroke-width:1.5}
+.lg{height:34px;width:auto}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<symbol id="i-undo" viewBox="0 0 24 24"><path d="M9 14 4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/></symbol>
+<symbol id="i-down" viewBox="0 0 24 24"><path d="M12 3v12m0 0-4-4m4 4 4-4"/><path d="M4 21h16"/></symbol>
+<symbol id="i-up" viewBox="0 0 24 24"><path d="M12 15V3m0 0L8 7m4-4 4 4"/><path d="M4 21h16"/></symbol>
+<symbol id="i-img" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></symbol>
+<symbol id="i-cut" viewBox="0 0 24 24"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M20 4 8.1 15.9M14.5 14.5 20 20M8.1 8.1 12 12"/></symbol>
+<symbol id="i-wand" viewBox="0 0 24 24"><path d="m15 4 5 5L8 21l-5-5z"/><path d="m14 7 3 3M5 3v3M3.5 4.5h3M19 15v3M17.5 16.5h3"/></symbol>
+<symbol id="i-spark" viewBox="0 0 24 24"><path d="M12 3l2 5.5 5.5 2-5.5 2L12 18l-2-5.5-5.5-2L10 8.5z"/></symbol>
+<symbol id="i-circle" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/></symbol>
+<symbol id="i-crop" viewBox="0 0 24 24"><path d="M6 2v14a2 2 0 0 0 2 2h14M2 6h14a2 2 0 0 1 2 2v14"/></symbol>
+<symbol id="i-squircle" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="7"/></symbol>
+<symbol id="i-shapes" viewBox="0 0 24 24"><circle cx="8" cy="8" r="5"/><rect x="11" y="11" width="10" height="10" rx="2"/></symbol>
+<symbol id="i-rotr" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/></symbol>
+<symbol id="i-rotl" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></symbol>
+<symbol id="i-flip" viewBox="0 0 24 24"><path d="M12 3v18"/><path d="M8 7 3 17h5zM16 7l5 10h-5z"/></symbol>
+<symbol id="i-scale" viewBox="0 0 24 24"><path d="M4 14v6h6M20 10V4h-6M4 20l7-7M20 4l-7 7"/></symbol>
+<symbol id="i-palette" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="8" cy="10" r="1"/><circle cx="12" cy="7.5" r="1"/><circle cx="16" cy="10" r="1"/></symbol>
+<symbol id="i-drop" viewBox="0 0 24 24"><path d="M12 3s7 7 7 12a7 7 0 0 1-14 0c0-5 7-12 7-12z"/></symbol>
+<symbol id="i-save" viewBox="0 0 24 24"><path d="M5 3h11l3 3v15H5z"/><path d="M8 3v6h7V3M8 21v-7h8v7"/></symbol>
+</defs></svg>
+<header>
+  <img class="lg" src="https://i.postimg.cc/k5b3Btjm/photo-2026-11-02-21-41-14-removebg-preview.png" alt="Z4" onerror="this.outerHTML='<span class=logo>Z4</span>'"><b>UI</b><small>แต่งรูปง่ายๆ ในเบราว์เซอร์</small>
+  <span class="sp"></span>
+  <button id="undo" disabled><svg class="i"><use href="#i-undo"/></svg>ย้อนกลับ</button>
+  <button id="newf"><svg class="i"><use href="#i-up"/></svg>เปลี่ยนรูป</button>
+  <button id="dl" class="pri" disabled><svg class="i"><use href="#i-down"/></svg>ดาวน์โหลด</button>
+</header>
+<main>
+  <section class="stage">
+    <div class="drop" id="drop"><div class="ico"><svg class="i"><use href="#i-img"/></svg></div><h2>ลากรูปมาวางที่นี่</h2><p>หรือคลิกเพื่อเลือกไฟล์ (JPG, PNG, WebP)</p></div>
+    <div class="cv" id="cv"><canvas id="view"></canvas></div>
+    <input type="file" id="file" accept="image/*" hidden>
+  </section>
+  <aside class="panel off" id="panel">
+    <div class="card">
+      <h3><svg class="i"><use href="#i-cut"/></svg>ลบพื้นหลัง</h3>
+      <div class="row"><button id="auto"><svg class="i"><use href="#i-spark"/></svg>ลบอัตโนมัติ</button><button id="wand"><svg class="i"><use href="#i-wand"/></svg>คลิกเลือกสี</button></div>
+      <label class="s">ความไวสี <span id="tolv">30</span></label>
+      <input type="range" id="tol" min="2" max="100" value="30">
+      <label class="s"><input type="checkbox" id="glob"> ลบสีนี้ทั้งภาพ (ไม่ต้องติดกัน)</label>
+      <p class="hint" id="wh">กด “คลิกเลือกสี” แล้วคลิกที่พื้นหลังบนรูป ทำซ้ำได้หลายครั้ง</p>
+    </div>
+    <div class="card">
+      <h3><svg class="i"><use href="#i-shapes"/></svg>รูปทรง</h3>
+      <div class="row"><button id="circle"><svg class="i"><use href="#i-circle"/></svg>ตัดวงกลม</button><button id="square"><svg class="i"><use href="#i-crop"/></svg>ครอปจัตุรัส</button></div>
+      <label class="s">ความมนของมุม <span id="rv">20</span>%</label>
+      <input type="range" id="rad" min="0" max="50" value="20">
+      <div class="row" style="margin-top:8px"><button id="round"><svg class="i"><use href="#i-squircle"/></svg>ทำมุมมน</button></div>
+    </div>
+    <div class="card">
+      <h3><svg class="i"><use href="#i-rotr"/></svg>หมุน / พลิก / ขนาด</h3>
+      <div class="row"><button id="rl"><svg class="i"><use href="#i-rotl"/></svg>90°</button><button id="rr"><svg class="i"><use href="#i-rotr"/></svg>90°</button><button id="fh"><svg class="i"><use href="#i-flip"/></svg>พลิกซ้ายขวา</button><button id="fv"><svg class="i" style="transform:rotate(90deg)"><use href="#i-flip"/></svg>พลิกบนล่าง</button></div>
+      <label class="s">ปรับขนาด <span id="sv">100</span>%</label>
+      <input type="range" id="scl" min="10" max="200" value="100">
+      <div class="row" style="margin-top:8px"><button id="rs"><svg class="i"><use href="#i-scale"/></svg>ใช้ขนาดนี้</button></div>
+    </div>
+    <div class="card">
+      <h3><svg class="i"><use href="#i-palette"/></svg>ปรับแต่งสี</h3>
+      <label class="s">ความสว่าง <span></span></label><input type="range" data-f="brightness" min="0" max="200" value="100">
+      <label class="s">คอนทราสต์ <span></span></label><input type="range" data-f="contrast" min="0" max="200" value="100">
+      <label class="s">ความอิ่มสี <span></span></label><input type="range" data-f="saturate" min="0" max="200" value="100">
+      <label class="s">เปลี่ยนโทนสี <span></span></label><input type="range" data-f="hue-rotate" min="0" max="360" value="0">
+      <label class="s">เบลอ <span></span></label><input type="range" data-f="blur" min="0" max="20" value="0">
+      <div class="row" style="margin-top:10px"><button data-p="grayscale">ขาวดำ</button><button data-p="sepia">ซีเปีย</button><button data-p="invert">กลับสี</button><button id="reset"><svg class="i"><use href="#i-rotl"/></svg>รีเซ็ต</button></div>
+    </div>
+    <div class="card">
+      <h3><svg class="i"><use href="#i-drop"/></svg>สีพื้นหลัง</h3>
+      <div class="row" style="align-items:center"><input type="color" id="bgc" value="#ffffff"><button id="bgon" style="flex:1">เติมสีพื้นหลัง</button></div>
+      <p class="hint">ใช้เติมหลังลบพื้นหลัง ถ้าไม่เปิด จะเป็นพื้นโปร่งใส</p>
+    </div>
+    <div class="card">
+      <h3><svg class="i"><use href="#i-save"/></svg>บันทึกเป็น</h3>
+      <div class="row"><button id="fpng" class="on">PNG</button><button id="fjpg">JPG</button><button id="fwebp">WebP</button></div>
+    </div>
+  </aside>
+</main>
+<script>
+const $=s=>document.querySelector(s);
+const base=document.createElement('canvas'),bc=base.getContext('2d',{willReadFrequently:true});
+const view=$('#view'),vc=view.getContext('2d');
+let hist=[],wandOn=false,bgOn=false,fmt='png',pre={grayscale:0,sepia:0,invert:0};
+const fs={brightness:100,contrast:100,saturate:100,'hue-rotate':0,blur:0};
+const units={brightness:'%',contrast:'%',saturate:'%','hue-rotate':'°',blur:'px'};
+
+function filt(){let s=Object.keys(fs).map(k=>k+'('+fs[k]+units[k]+')').join(' ');
+  for(const k in pre)if(pre[k])s+=' '+k+'(1)';return s}
+function render(){
+  view.width=base.width;view.height=base.height;
+  if(bgOn){vc.fillStyle=$('#bgc').value;vc.fillRect(0,0,view.width,view.height)}
+  vc.filter=filt();vc.drawImage(base,0,0);vc.filter='none';
+}
+function push(){const c=document.createElement('canvas');c.width=base.width;c.height=base.height;c.getContext('2d').drawImage(base,0,0);hist.push(c);if(hist.length>15)hist.shift();$('#undo').disabled=false}
+function undo(){const c=hist.pop();if(!c)return;base.width=c.width;base.height=c.height;bc.drawImage(c,0,0);$('#undo').disabled=!hist.length;render()}
+function replace(c){push();base.width=c.width;base.height=c.height;bc.clearRect(0,0,c.width,c.height);bc.drawImage(c,0,0);render()}
+function mk(w,h){const c=document.createElement('canvas');c.width=w;c.height=h;return c}
+
+function loadFile(f){
+  if(!f||!f.type.startsWith('image/'))return;
+  const img=new Image();
+  img.onload=()=>{
+    let w=img.naturalWidth,h=img.naturalHeight,m=2400;
+    if(Math.max(w,h)>m){const r=m/Math.max(w,h);w=Math.round(w*r);h=Math.round(h*r)}
+    base.width=w;base.height=h;bc.clearRect(0,0,w,h);bc.drawImage(img,0,0,w,h);
+    hist=[];$('#undo').disabled=true;$('#dl').disabled=false;
+    $('#drop').style.display='none';$('#cv').style.display='block';$('#panel').classList.remove('off');
+    render();URL.revokeObjectURL(img.src)};
+  img.src=URL.createObjectURL(f);
+}
+const drop=$('#drop'),file=$('#file');
+drop.onclick=()=>file.click();$('#newf').onclick=()=>file.click();
+file.onchange=e=>{loadFile(e.target.files[0]);file.value=''};
+['dragover','dragenter'].forEach(t=>document.addEventListener(t,e=>{e.preventDefault();drop.classList.add('over')}));
+['dragleave','drop'].forEach(t=>document.addEventListener(t,e=>{e.preventDefault();drop.classList.remove('over')}));
+document.addEventListener('drop',e=>loadFile(e.dataTransfer.files[0]));
+
+/* ลบพื้นหลัง */
+function removeAt(d,w,h,x,y,tol,global){
+  const i0=(y*w+x)*4,r=d[i0],g=d[i0+1],b=d[i0+2],a0=d[i0+3];if(a0===0)return;
+  const T=tol*4.41,T2=T*T;
+  const ok=i=>{if(d[i+3]===0)return false;const dr=d[i]-r,dg=d[i+1]-g,db=d[i+2]-b;return dr*dr+dg*dg+db*db<=T2};
+  if(global){for(let i=0;i<d.length;i+=4)if(ok(i))d[i+3]=0;return}
+  const seen=new Uint8Array(w*h),st=[x,y];
+  while(st.length){const cy=st.pop(),cx=st.pop();
+    if(cx<0||cy<0||cx>=w||cy>=h)continue;const p=cy*w+cx;if(seen[p])continue;seen[p]=1;
+    const i=p*4;if(!ok(i))continue;d[i+3]=0;st.push(cx+1,cy,cx-1,cy,cx,cy+1,cx,cy-1)}
+}
+function doRemove(pts,global){
+  push();const w=base.width,h=base.height,im=bc.getImageData(0,0,w,h),tol=+$('#tol').value;
+  pts.forEach(([x,y])=>removeAt(im.data,w,h,x,y,tol,global));bc.putImageData(im,0,0);render();
+}
+$('#auto').onclick=()=>{const w=base.width-1,h=base.height-1;doRemove([[0,0],[w,0],[0,h],[w,h]],false)};
+$('#wand').onclick=function(){wandOn=!wandOn;this.classList.toggle('on',wandOn);view.classList.toggle('pick',wandOn)};
+view.addEventListener('click',e=>{
+  if(!wandOn)return;const r=view.getBoundingClientRect();
+  const x=Math.floor((e.clientX-r.left)*view.width/r.width),y=Math.floor((e.clientY-r.top)*view.height/r.height);
+  doRemove([[x,y]],$('#glob').checked)});
+$('#tol').oninput=e=>$('#tolv').textContent=e.target.value;
+
+/* รูปทรง */
+function squareCanvas(){const s=Math.min(base.width,base.height),c=mk(s,s);
+  c.getContext('2d').drawImage(base,(base.width-s)/-2,(base.height-s)/-2);return c}
+$('#square').onclick=()=>replace(squareCanvas());
+$('#circle').onclick=()=>{const sq=squareCanvas(),s=sq.width,c=mk(s,s),x=c.getContext('2d');
+  x.beginPath();x.arc(s/2,s/2,s/2,0,Math.PI*2);x.clip();x.drawImage(sq,0,0);replace(c)};
+$('#rad').oninput=e=>$('#rv').textContent=e.target.value;
+$('#round').onclick=()=>{const w=base.width,h=base.height,c=mk(w,h),x=c.getContext('2d');
+  x.beginPath();x.roundRect(0,0,w,h,Math.min(w,h)*$('#rad').value/100);x.clip();x.drawImage(base,0,0);replace(c)};
+
+/* หมุน/พลิก/ขนาด */
+function rot(dir){const c=mk(base.height,base.width),x=c.getContext('2d');
+  x.translate(c.width/2,c.height/2);x.rotate(dir*Math.PI/2);x.drawImage(base,-base.width/2,-base.height/2);replace(c)}
+$('#rl').onclick=()=>rot(-1);$('#rr').onclick=()=>rot(1);
+function flip(h){const c=mk(base.width,base.height),x=c.getContext('2d');
+  h?x.setTransform(-1,0,0,1,c.width,0):x.setTransform(1,0,0,-1,0,c.height);x.drawImage(base,0,0);replace(c)}
+$('#fh').onclick=()=>flip(true);$('#fv').onclick=()=>flip(false);
+$('#scl').oninput=e=>$('#sv').textContent=e.target.value;
+$('#rs').onclick=()=>{const k=$('#scl').value/100,c=mk(Math.max(1,Math.round(base.width*k)),Math.max(1,Math.round(base.height*k)));
+  c.getContext('2d').drawImage(base,0,0,c.width,c.height);replace(c);$('#scl').value=100;$('#sv').textContent=100};
+
+/* สี */
+document.querySelectorAll('[data-f]').forEach(el=>{
+  const sp=el.previousElementSibling.querySelector('span'),k=el.dataset.f;
+  const upd=()=>{fs[k]=+el.value;sp.textContent=el.value+units[k];if(base.width)render()};
+  el.oninput=upd;upd();
+});
+document.querySelectorAll('[data-p]').forEach(b=>b.onclick=()=>{const k=b.dataset.p;pre[k]=pre[k]?0:1;b.classList.toggle('on',!!pre[k]);render()});
+$('#reset').onclick=()=>{document.querySelectorAll('[data-f]').forEach(el=>{el.value=el.id?0:(el.dataset.f==='hue-rotate'||el.dataset.f==='blur'?0:100);el.oninput()});
+  document.querySelectorAll('[data-p]').forEach(b=>{pre[b.dataset.p]=0;b.classList.remove('on')});render()};
+$('#bgon').onclick=function(){bgOn=!bgOn;this.classList.toggle('on',bgOn);render()};
+$('#bgc').oninput=()=>{if(bgOn)render()};
+
+/* ดาวน์โหลด */
+['png','jpg','webp'].forEach(f=>$('#f'+f).onclick=()=>{fmt=f;['png','jpg','webp'].forEach(g=>$('#f'+g).classList.toggle('on',g===f))});
+$('#undo').onclick=undo;
+$('#dl').onclick=()=>{
+  const c=mk(base.width,base.height),x=c.getContext('2d');
+  if(bgOn||fmt==='jpg'){x.fillStyle=bgOn?$('#bgc').value:'#ffffff';x.fillRect(0,0,c.width,c.height)}
+  x.filter=filt();x.drawImage(base,0,0);
+  const mime={png:'image/png',jpg:'image/jpeg',webp:'image/webp'}[fmt];
+  c.toBlob(b=>{const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='z4-edit.'+fmt;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),2000)},mime,.95);
+};
+</script>
+</body>
+</html>
